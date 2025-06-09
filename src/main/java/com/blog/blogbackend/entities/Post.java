@@ -2,10 +2,7 @@ package com.blog.blogbackend.entities;
 
 import com.blog.blogbackend.PostStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -17,7 +14,8 @@ import java.util.UUID;
 @Table(name = "posts")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class Post {
     @Id

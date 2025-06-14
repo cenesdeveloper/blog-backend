@@ -23,7 +23,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(
+                        session
+                                -> session.sessionCreationPolicy(
+                                        SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

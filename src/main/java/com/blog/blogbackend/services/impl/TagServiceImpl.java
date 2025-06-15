@@ -47,5 +47,16 @@ public class TagServiceImpl implements TagService {
         return savedTags;
     }
 
+    @Transactional
+    @Override
+    public void deleteTag(UUID id) {
+        tagRepository.findById(id).ifPresent(tag -> {
+            if (!tag.getPosts().isEmpty()) {
+                throw new IllegalStateException("Cannot delete tag with posts");
+            }
+            tagRepository.deleteById(id);
+        });
+    }
+
 
 }

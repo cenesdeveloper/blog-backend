@@ -4,6 +4,7 @@ import com.blog.blogbackend.PostStatus;
 import com.blog.blogbackend.entities.Category;
 import com.blog.blogbackend.entities.Post;
 import com.blog.blogbackend.entities.Tag;
+import com.blog.blogbackend.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     List<Post> findAllByStatusAndCategory(PostStatus status, Category category);
     List<Post> findAllByStatusAndTagsContaining(PostStatus status, Tag tag);
     List<Post> findAllByStatus(PostStatus status);
+    List<Post> findAllByAuthorAndStatus(User author, PostStatus status);
 }

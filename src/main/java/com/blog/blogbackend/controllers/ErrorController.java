@@ -34,7 +34,7 @@ public class ErrorController {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiErrorResponse> handleIllegalstateException(IllegalArgumentException exception) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalStateException(IllegalStateException exception) {
         ApiErrorResponse error = ApiErrorResponse.builder()
                 .status(HttpStatus.CONFLICT.value())
                 .message(exception.getMessage())

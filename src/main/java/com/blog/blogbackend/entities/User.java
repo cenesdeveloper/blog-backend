@@ -1,5 +1,6 @@
 package com.blog.blogbackend.entities;
 
+import com.blog.blogbackend.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +37,11 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
 
     @Override
     public boolean equals(Object o) {

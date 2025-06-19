@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public class PostController {
         return new ResponseEntity<>(createdPostDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isOwner(authentication, #id)")
     @PutMapping(path = "/{id}")
     public ResponseEntity<PostDto> updatePost(
             @PathVariable UUID id,
@@ -74,6 +76,7 @@ public class PostController {
         return ResponseEntity.ok(postDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @postSecurity.isOwner(authentication, #id)")
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         postService.deletePost(id);

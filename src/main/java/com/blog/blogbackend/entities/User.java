@@ -1,6 +1,5 @@
 package com.blog.blogbackend.entities;
 
-import com.blog.blogbackend.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

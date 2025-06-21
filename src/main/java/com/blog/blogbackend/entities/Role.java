@@ -1,4 +1,4 @@
-package com.blog.blogbackend;
+package com.blog.blogbackend.entities;
 
 public enum Role {
     USER,

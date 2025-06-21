@@ -1,6 +1,6 @@
 package com.blog.blogbackend.dtos;
 
-import com.blog.blogbackend.Role;
+import com.blog.blogbackend.entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

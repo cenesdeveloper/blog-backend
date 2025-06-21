@@ -1,10 +1,12 @@
 package com.blog.blogbackend.config;
 
+import com.blog.blogbackend.entities.Role;
 import com.blog.blogbackend.entities.User;
 import com.blog.blogbackend.repositories.UserRepository;
 import com.blog.blogbackend.security.BlogUserDetailsService;
 import com.blog.blogbackend.security.JwtAuthenticationFilter;
 import com.blog.blogbackend.services.AuthenticationService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -64,5 +66,28 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public CommandLineRunner seedTestUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (userRepository.findByEmail("test@example.com").isEmpty()) {
+                userRepository.save(User.builder()
+                        .name("Test User")
+                        .email("test@example.com")
+                        .password(passwordEncoder.encode("testpass"))
+                        .role(Role.USER)
+                        .build());
+            }
+
+            if (userRepository.findByEmail("admin@example.com").isEmpty()) {
+                userRepository.save(User.builder()
+                        .name("Admin User")
+                        .email("admin@example.com")
+                        .password(passwordEncoder.encode("adminpass"))
+                        .role(Role.ADMIN)
+                        .build());
+            }
+        };
     }
 }

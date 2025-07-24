@@ -1,5 +1,6 @@
 services:
   db:
+    # PostgreSQL database
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -8,7 +9,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-
+  # Database interface
   adminer:
     image: adminer:latest
     restart: always

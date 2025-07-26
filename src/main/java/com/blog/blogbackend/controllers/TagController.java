@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
@@ -35,5 +36,11 @@ public class TagController {
         List<TagResponse> createdTagResponses = savedTags.stream().map(tagMapper::toTagResponse).toList();
         return new ResponseEntity<>(createdTagResponses,
                 HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<List<TagResponse>> deleteTags(@PathVariable UUID id) {
+        tagService.deleteTag(id);
+        return ResponseEntity.noContent().build();
     }
 }

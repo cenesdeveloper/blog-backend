@@ -4,6 +4,7 @@ import com.blog.blogbackend.domain.PostStatus;
 import com.blog.blogbackend.domain.entities.Category;
 import com.blog.blogbackend.domain.entities.Post;
 import com.blog.blogbackend.domain.entities.Tag;
+import com.blog.blogbackend.domain.entities.User;
 import com.blog.blogbackend.repositories.PostRepository;
 import com.blog.blogbackend.services.CategoryService;
 import com.blog.blogbackend.services.PostService;
@@ -41,5 +42,10 @@ public class PostServiceImpl implements PostService {
         }
         return postRepository.findAllByStatus(PostStatus.PUBLISHED);
 
+    }
+
+    @Override
+    public List<Post> getDraftPosts(User user) {
+        return postRepository.findAllByAuthorAndStatus(user, PostStatus.DRAFT);
     }
 }

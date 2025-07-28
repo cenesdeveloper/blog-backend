@@ -1,8 +1,10 @@
 package com.blog.blogbackend.mappers;
 
 import com.blog.blogbackend.domain.CreatePostRequest;
+import com.blog.blogbackend.domain.UpdatePostRequest;
 import com.blog.blogbackend.domain.dtos.CreatePostRequestDto;
 import com.blog.blogbackend.domain.dtos.PostDto;
+import com.blog.blogbackend.domain.dtos.UpdatePostRequestDto;
 import com.blog.blogbackend.domain.entities.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,4 +18,5 @@ public interface PostMapper {
     PostDto toPostDto(Post post);
 
     CreatePostRequest toCreatePostRequest(CreatePostRequestDto  createPostRequestDto);
+    UpdatePostRequest toUpdatePostRequest(UpdatePostRequestDto  updatePostRequestDto);
 }

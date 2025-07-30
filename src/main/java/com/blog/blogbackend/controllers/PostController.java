@@ -8,7 +8,6 @@ import com.blog.blogbackend.domain.dtos.UpdatePostRequestDto;
 import com.blog.blogbackend.domain.entities.Post;
 import com.blog.blogbackend.domain.entities.User;
 import com.blog.blogbackend.mappers.PostMapper;
-import com.blog.blogbackend.repositories.UserRepository;
 import com.blog.blogbackend.services.PostService;
 import com.blog.blogbackend.services.UserService;
 import jakarta.validation.Valid;

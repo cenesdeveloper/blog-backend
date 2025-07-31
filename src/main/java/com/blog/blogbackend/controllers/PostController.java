@@ -48,13 +48,13 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostDto> createPost(
             @Valid @RequestBody CreatePostRequestDto createPostRequestDto,
-            @RequestAttribute UUID userID)  {
+            @RequestAttribute UUID userId)  {
 
-        User loggedInUser = userService.getUserById(userID);
+        User loggedInUser = userService.getUserById(userId);
         CreatePostRequest createPostRequest = postMapper.toCreatePostRequest(createPostRequestDto);
         Post createdPost =  postService.createPost(loggedInUser, createPostRequest);
         PostDto postDto = postMapper.toPostDto(createdPost);
-        return new  ResponseEntity<>(postDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(postDto, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")

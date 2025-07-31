@@ -17,6 +17,7 @@ public interface PostMapper {
     @Mapping(target = "tags", source = "tags")
     PostDto toPostDto(Post post);
 
+    @Mapping(target = "status", source = "status")
     CreatePostRequest toCreatePostRequest(CreatePostRequestDto  createPostRequestDto);
     UpdatePostRequest toUpdatePostRequest(UpdatePostRequestDto  updatePostRequestDto);
 }

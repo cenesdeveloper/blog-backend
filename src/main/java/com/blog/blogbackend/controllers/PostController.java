@@ -28,11 +28,21 @@ public class PostController {
     private final PostMapper postMapper;
     private final UserService userService;
 
+//    @GetMapping
+//    public ResponseEntity<List<PostDto>>  getAllPosts(
+//        @RequestParam(required = false) UUID categoryId,
+//        @RequestParam(required = false) UUID tagId) {
+//        List<Post> posts = postService.getAllPosts(categoryId, tagId);
+//        List<PostDto> postDtos = posts.stream().map(postMapper::toPostDto).toList();
+//        return ResponseEntity.ok(postDtos);
+//    }
+
     @GetMapping
-    public ResponseEntity<List<PostDto>>  getAllPosts(
-        @RequestParam(required = false) UUID categoryId,
-        @RequestParam(required = false) UUID tagId) {
-        List<Post> posts = postService.getAllPosts(categoryId, tagId);
+    public ResponseEntity<List<PostDto>> getAllPosts(
+            @RequestParam(value = "categoryId", required = false) List<UUID> categoryIds,
+            @RequestParam(value = "tagId", required = false) List<UUID> tagIds
+    ) {
+        List<Post> posts = postService.getAllPosts(categoryIds, tagIds);
         List<PostDto> postDtos = posts.stream().map(postMapper::toPostDto).toList();
         return ResponseEntity.ok(postDtos);
     }

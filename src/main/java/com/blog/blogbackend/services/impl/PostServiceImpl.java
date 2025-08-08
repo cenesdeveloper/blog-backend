@@ -38,25 +38,50 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new EntityNotFoundException("Post does not exist with id: " + id));
     }
 
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<Post> getAllPosts(UUID categoryId, UUID tagId) {
+//        if(categoryId != null && tagId != null){
+//            Category category = categoryService.getCategoryById(categoryId);
+//            Tag tag = tagService.getTagById(tagId);
+//            return postRepository.findAllByStatusAndCategoryAndTagsContaining(PostStatus.PUBLISHED, category, tag);
+//        }
+//        if(categoryId != null){
+//            Category category = categoryService.getCategoryById(categoryId);
+//            return postRepository.findAllByStatusAndCategory(PostStatus.PUBLISHED, category);
+//        }
+//        if(tagId != null){
+//            Tag tag = tagService.getTagById(tagId);
+//            return postRepository.findAllByStatusAndTagsContaining(PostStatus.PUBLISHED, tag);
+//        }
+//        return postRepository.findAllByStatus(PostStatus.PUBLISHED);
+//
+//    }
+
     @Override
     @Transactional(readOnly = true)
-    public List<Post> getAllPosts(UUID categoryId, UUID tagId) {
-        if(categoryId != null && tagId != null){
-            Category category = categoryService.getCategoryById(categoryId);
-            Tag tag = tagService.getTagById(tagId);
-            return postRepository.findAllByStatusAndCategoryAndTagsContaining(PostStatus.PUBLISHED, category, tag);
+    public List<Post> getAllPosts(List<UUID> categoryIds, List<UUID> tagIds) {
+        boolean hasCats = categoryIds != null && !categoryIds.isEmpty();
+        boolean hasTags = tagIds != null && !tagIds.isEmpty();
+
+        if (hasCats && hasTags) {
+            return postRepository.findDistinctByStatusAndCategory_IdInAndTags_IdIn(
+                    PostStatus.PUBLISHED, categoryIds, tagIds
+            );
         }
-        if(categoryId != null){
-            Category category = categoryService.getCategoryById(categoryId);
-            return postRepository.findAllByStatusAndCategory(PostStatus.PUBLISHED, category);
+        if (hasCats) {
+            return postRepository.findDistinctByStatusAndCategory_IdIn(
+                    PostStatus.PUBLISHED, categoryIds
+            );
         }
-        if(tagId != null){
-            Tag tag = tagService.getTagById(tagId);
-            return postRepository.findAllByStatusAndTagsContaining(PostStatus.PUBLISHED, tag);
+        if (hasTags) {
+            return postRepository.findDistinctByStatusAndTags_IdIn(
+                    PostStatus.PUBLISHED, tagIds
+            );
         }
         return postRepository.findAllByStatus(PostStatus.PUBLISHED);
-
     }
+
 
     @Override
     public List<Post> getDraftPosts(User user) {

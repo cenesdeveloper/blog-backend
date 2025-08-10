@@ -29,26 +29,22 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto register(UserDto userDto) {
-        // 1) Functional check: password must match
         if (!userDto.getPassword().equals(userDto.getMatchingPassword())) {
             throw new IllegalArgumentException("Passwords do not match");
         }
-
-        // 2) Uniqueness check
-        if (userRepository.existsByEmail(userDto.getEmail().toLowerCase())) {
+        if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalStateException("Email is already registered");
         }
 
-        // 3) Map DTO -> Entity and hash password
         User user = new User();
-        user.setEmail(userDto.getEmail().toLowerCase());
+        user.setName(userDto.getName());  // <-- now taken from request
+        user.setEmail(userDto.getEmail().trim().toLowerCase());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        // 4) Save user
         User saved = userRepository.save(user);
 
-        // 5) Map back to safe DTO (omit passwords)
         return UserDto.builder()
+                .name(saved.getName())
                 .email(saved.getEmail())
                 .build();
     }

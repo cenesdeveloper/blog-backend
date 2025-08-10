@@ -1,7 +1,8 @@
 package com.blog.blogbackend.domain.dtos;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +14,14 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserDto {
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
+
+    @NotBlank
     private String matchingPassword;
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @Email(message = "Invalid email format")
     private String email;
 }

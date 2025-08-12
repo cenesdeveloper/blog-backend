@@ -28,25 +28,18 @@ public class PostController {
     private final PostMapper postMapper;
     private final UserService userService;
 
-//    @GetMapping
-//    public ResponseEntity<List<PostDto>>  getAllPosts(
-//        @RequestParam(required = false) UUID categoryId,
-//        @RequestParam(required = false) UUID tagId) {
-//        List<Post> posts = postService.getAllPosts(categoryId, tagId);
-//        List<PostDto> postDtos = posts.stream().map(postMapper::toPostDto).toList();
-//        return ResponseEntity.ok(postDtos);
-//    }
-
+    // PUBLIC FEED: published only (optionally filtered)
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts(
             @RequestParam(value = "categoryId", required = false) List<UUID> categoryIds,
             @RequestParam(value = "tagId", required = false) List<UUID> tagIds
     ) {
-        List<Post> posts = postService.getAllPosts(categoryIds, tagIds);
+        List<Post> posts = postService.getPublishedPosts(categoryIds, tagIds);
         List<PostDto> postDtos = posts.stream().map(postMapper::toPostDto).toList();
         return ResponseEntity.ok(postDtos);
     }
 
+    // OWNER DRAFTS: requires logged-in user
     @GetMapping(path = "/drafts")
     public ResponseEntity<List<PostDto>> getAllDrafts(@RequestAttribute UUID userId) {
         User loggedInUser = userService.getUserById(userId);
@@ -55,6 +48,7 @@ public class PostController {
         return ResponseEntity.ok(postDtos);
     }
 
+    // CREATE: author forced to current user (already correct)
     @PostMapping
     public ResponseEntity<PostDto> createPost(
             @Valid @RequestBody CreatePostRequestDto createPostRequestDto,
@@ -67,29 +61,37 @@ public class PostController {
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/{id}")
-    public ResponseEntity<PostDto> updatePost(
-            @PathVariable UUID id,
-            @Valid @RequestBody UpdatePostRequestDto updatePostRequestDto) {
-        UpdatePostRequest updatePostRequest = postMapper.toUpdatePostRequest(updatePostRequestDto);
-        Post updatedPost = postService.updatePost(id, updatePostRequest);
-        PostDto updatedPostDto = postMapper.toPostDto(updatedPost);
-        return ResponseEntity.ok(updatedPostDto);
-    }
-
+    // READ SINGLE: allow if PUBLISHED, or DRAFT only if owner/admin
     @GetMapping(path = "/{id}")
     public ResponseEntity<PostDto> getPost(
-            @PathVariable UUID id
+            @PathVariable UUID id,
+            @RequestAttribute(required = false) UUID userId
     ) {
-        Post post = postService.getPost(id);
+        Post post = postService.getPostVisibleTo(id, userId);
         PostDto postDto = postMapper.toPostDto(post);
         return ResponseEntity.ok(postDto);
     }
 
-    @DeleteMapping(path = "/{id}")
-    public ResponseEntity<PostDto> deletePost(@PathVariable UUID id) {
-        postService.deletePost(id);
-        return ResponseEntity.noContent().build();
+    // UPDATE: only owner or admin
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdatePostRequestDto updatePostRequestDto,
+            @RequestAttribute UUID userId) {
+
+        UpdatePostRequest updatePostRequest = postMapper.toUpdatePostRequest(updatePostRequestDto);
+        Post updatedPost = postService.updatePostAuthorized(id, updatePostRequest, userId);
+        PostDto updatedPostDto = postMapper.toPostDto(updatedPost);
+        return ResponseEntity.ok(updatedPostDto);
     }
 
+    // DELETE: only owner or admin
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable UUID id,
+            @RequestAttribute UUID userId) {
+
+        postService.deletePostAuthorized(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

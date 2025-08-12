@@ -59,31 +59,6 @@ public class PostServiceImpl implements PostService {
 //    }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Post> getAllPosts(List<UUID> categoryIds, List<UUID> tagIds) {
-        boolean hasCats = categoryIds != null && !categoryIds.isEmpty();
-        boolean hasTags = tagIds != null && !tagIds.isEmpty();
-
-        if (hasCats && hasTags) {
-            return postRepository.findDistinctByStatusAndCategory_IdInAndTags_IdIn(
-                    PostStatus.PUBLISHED, categoryIds, tagIds
-            );
-        }
-        if (hasCats) {
-            return postRepository.findDistinctByStatusAndCategory_IdIn(
-                    PostStatus.PUBLISHED, categoryIds
-            );
-        }
-        if (hasTags) {
-            return postRepository.findDistinctByStatusAndTags_IdIn(
-                    PostStatus.PUBLISHED, tagIds
-            );
-        }
-        return postRepository.findAllByStatus(PostStatus.PUBLISHED);
-    }
-
-
-    @Override
     public List<Post> getDraftPosts(User user) {
         return postRepository.findAllByAuthorAndStatus(user, PostStatus.DRAFT);
     }
@@ -152,4 +127,89 @@ public class PostServiceImpl implements PostService {
         int wordCount = content.trim().split("\\s+").length;
         return (int) Math.ceil((double) wordCount / WORDS_PER_MINUTE);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> getPublishedPosts(List<UUID> categoryIds, List<UUID> tagIds) {
+        // same filtering you already had in getAllPosts, but explicit name
+        boolean hasCats = categoryIds != null && !categoryIds.isEmpty();
+        boolean hasTags = tagIds != null && !tagIds.isEmpty();
+
+        if (hasCats && hasTags) {
+            return postRepository.findDistinctByStatusAndCategory_IdInAndTags_IdIn(
+                    PostStatus.PUBLISHED, categoryIds, tagIds
+            );
+        }
+        if (hasCats) {
+            return postRepository.findDistinctByStatusAndCategory_IdIn(PostStatus.PUBLISHED, categoryIds);
+        }
+        if (hasTags) {
+            return postRepository.findDistinctByStatusAndTags_IdIn(PostStatus.PUBLISHED, tagIds);
+        }
+        return postRepository.findAllByStatus(PostStatus.PUBLISHED);
+    }
+
+    // Optional: keep old name delegating to new one
+    @Deprecated
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> getAllPosts(List<UUID> categoryIds, List<UUID> tagIds) {
+        return getPublishedPosts(categoryIds, tagIds);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Post getPostVisibleTo(UUID id, UUID requesterId) {
+        Post post = getPost(id); // throws if not found
+        if (post.getStatus() == PostStatus.PUBLISHED) return post;
+
+        // Draft: only owner (ADMIN support can be added later)
+        if (requesterId != null && requesterId.equals(post.getAuthor().getId())) {
+            return post;
+        }
+        // Hide existence of drafts to others
+        throw new jakarta.persistence.EntityNotFoundException("Post does not exist with id: " + id);
+    }
+
+    @Override
+    @Transactional
+    public Post updatePostAuthorized(UUID id, UpdatePostRequest updatePostRequest, UUID requesterId) {
+        Post existing = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post does not exist with id " + id));
+        if (!existing.getAuthor().getId().equals(requesterId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Not allowed to modify this post");
+        }
+        // reuse your existing update logic
+        existing.setTitle(updatePostRequest.getTitle());
+        existing.setContent(updatePostRequest.getContent());
+        existing.setStatus(updatePostRequest.getStatus());
+        existing.setReadingTime(calculateReadingTime(updatePostRequest.getContent()));
+
+        UUID newCatId = updatePostRequest.getCategoryId();
+        if (!existing.getCategory().getId().equals(newCatId)) {
+            Category newCategory = categoryService.getCategoryById(newCatId);
+            existing.setCategory(newCategory);
+        }
+
+        Set<UUID> existingTagIds = existing.getTags().stream().map(Tag::getId).collect(java.util.stream.Collectors.toSet());
+        Set<UUID> reqTagIds = updatePostRequest.getTagIds();
+        if (!existingTagIds.equals(reqTagIds)) {
+            List<Tag> newTags = tagService.getTagByIds(reqTagIds);
+            existing.setTags(new java.util.HashSet<>(newTags));
+        }
+
+        return postRepository.save(existing);
+    }
+
+    @Override
+    @Transactional
+    public void deletePostAuthorized(UUID id, UUID requesterId) {
+        Post existing = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Post does not exist with id " + id));
+        if (!existing.getAuthor().getId().equals(requesterId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Not allowed to delete this post");
+        }
+        postRepository.delete(existing);
+    }
+
 }

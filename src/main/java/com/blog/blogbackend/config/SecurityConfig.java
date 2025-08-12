@@ -53,16 +53,25 @@ public class SecurityConfig {
         http
                 .cors().and()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll() // Add posts/draft.authenticated for getting draft posts
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/drafts").authenticated()
+                        // Public reads
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/tags/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/tags/**").permitAll()
+
+                        // Protected endpoints (put these AFTER the general GET rule so they still apply)
+
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/posts/**").authenticated()
+
+                        // (Optional later: lock down POST/DELETE tags)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class AuthorDto {
-
     private UUID id;
     private String name;
+    private String email;
 }

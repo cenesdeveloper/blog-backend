@@ -9,10 +9,17 @@ import com.blog.blogbackend.domain.entities.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import com.blog.blogbackend.domain.entities.User;
+import com.blog.blogbackend.domain.dtos.AuthorDto;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PostMapper {
-    @Mapping(target = "author", source = "author")
+
+    AuthorDto toAuthorDto(User user);
+
+    @Mapping(target = "author.name", source = "author.name")
+    @Mapping(target = "author.id", source = "author.id")
+    @Mapping(target = "author.email", source = "author.email")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "tags", source = "tags")
     PostDto toPostDto(Post post);

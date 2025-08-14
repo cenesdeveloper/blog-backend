@@ -28,7 +28,6 @@ public class PostController {
     private final PostMapper postMapper;
     private final UserService userService;
 
-    // PUBLIC FEED: published only (optionally filtered)
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts(
             @RequestParam(value = "categoryId", required = false) List<UUID> categoryIds,

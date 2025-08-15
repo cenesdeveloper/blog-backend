@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // applies to all routes (e.g., /api/v1/categories)
-                        .allowedOrigins("http://localhost:3000") // only allow this frontend
+                        .allowedOrigins("http://localhost:3000", "https://blog-frontend-green-five.vercel.app/") // only allow this frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // which HTTP methods are allowed
                         .allowedHeaders("*"); // allow all headers (like Authorization, Content-Type, etc.)
             }
